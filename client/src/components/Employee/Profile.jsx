@@ -1,38 +1,80 @@
-import React, { useState } from "react";
+import axios from "axios";
+import cryptoJs from "crypto-js";
+import { useSnackbar } from "notistack";
+import React, { useEffect, useState } from "react";
+import { baseURL } from "../../apiURL";
 import PageHeader from "../PageHeader";
-const user = {
-  name: "John Doe",
-  username: "johndoe",
-  password: "mypassword",
-  picture: "https://randomuser.me/api/portraits/med/men/20.jpg",
-};
 
 const Profile = () => {
-  const [name, setName] = useState(user.name);
-  const [username, setUsername] = useState(user.username);
-  const [password, setPassword] = useState(user.password);
-  const [picture, setPicture] = useState(user.picture);
+  const [name, setName] = useState("");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [oldPassword, setOldPassword] = useState("");
+  const [oldPasswordFromDB, setOldPasswordFromDB] = useState("");
+  const { enqueueSnackbar } = useSnackbar();
 
-  const handleUpdate = (event) => {
-    event.preventDefault();
-    onUpdate({ name, username, password, picture });
+  const handleUpdate = () => {
+    if (oldPassword != null && password != null) {
+      if (cryptoJs.SHA256(oldPassword).toString() === oldPasswordFromDB) {
+        onUpdate(name, email, password);
+      } else {
+        enqueueSnackbar("Please enter correct password.", {
+          variant: "error",
+        });
+      }
+    }
   };
 
-  const onUpdate = (name, username, password, picture) => {
-    console.log(name, username, password, picture);
+  useEffect(() => {
+    getUser();
+  }, []);
+
+  const getUser = () => {
+    axios
+      .get(`${baseURL}/user/find`, {
+        params: { user: localStorage.getItem("user") },
+      })
+      .then((res) => {
+        if (res.status == 200) {
+          console.log(res.data);
+          setName(res.data.username);
+          setEmail(res.data.email);
+          setOldPasswordFromDB(res.data.password);
+        }
+      })
+      .catch((err) => console.log(err));
+  };
+
+  const onUpdate = (name, email, password) => {
+    console.log(localStorage.getItem("user"));
+    const data = {
+      id: localStorage.getItem("user"),
+      name: name,
+      email: email,
+      password: password,
+    };
+    console.log(data);
+    axios
+      .put(`${baseURL}/user/update`, data)
+      .then((res) => {
+        if (res.status == 200) {
+          enqueueSnackbar("User updated.", {
+            variant: "success",
+          });
+          getUser();
+        }
+      })
+      .catch((err) => {
+        enqueueSnackbar("User updated failed.Try again", {
+          variant: "error",
+        });
+        getUser();console.log(err)});
   };
   return (
     <>
       <PageHeader title={"Your Profile"} />
-      <div className="max-w-md mx-auto bg-white shadow-md rounded px-8 pt-6 pb-8 mb-4">
-        <div className="mb-4">
-          <img
-            className="rounded-full h-20 w-20 mx-auto"
-            src={picture}
-            alt="Profile"
-          />
-        </div>
-        <form onSubmit={handleUpdate}>
+      <div className="max-w-md mx-auto bg-white shadow-md rounded px-8 pt-6 pb-8 mb-4 mt-20">
+        <div>
           <div className="mb-4">
             <label
               className="block text-gray-700 font-bold mb-2"
@@ -52,59 +94,63 @@ const Profile = () => {
           <div className="mb-4">
             <label
               className="block text-gray-700 font-bold mb-2"
-              htmlFor="username"
+              htmlFor="email"
             >
-              Username
+              Email
             </label>
             <input
               className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
-              id="username"
+              id="email"
               type="text"
-              placeholder="Username"
-              value={username}
-              onChange={(event) => setUsername(event.target.value)}
+              placeholder="email"
+              value={email}
+              onChange={(event) => setEmail(event.target.value)}
             />
           </div>
           <div className="mb-4">
             <label
               className="block text-gray-700 font-bold mb-2"
-              htmlFor="password"
+              htmlFor="oldPassword"
             >
-              Password
+              Old Password
             </label>
             <input
               className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
-              id="password"
+              id="oldPassword"
+              type="password"
+              placeholder="********"
+              value={oldPassword}
+              onChange={(event) => setOldPassword(event.target.value)}
+            />
+          </div>
+          <div className="mb-4">
+            <label
+              className="block text-gray-700 font-bold mb-2"
+              htmlFor="newPassword"
+            >
+              New Password
+            </label>
+            <input
+              className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+              id="newPassword"
               type="password"
               placeholder="********"
               value={password}
               onChange={(event) => setPassword(event.target.value)}
             />
           </div>
-          <div className="mb-4">
-          <label
-            htmlFor="picture"
-            className="block text-gray-700 font-bold mb-2"
-          >
-            Profile Picture
-          </label>
-          <input
-            type="file"
-            id="picture"
-            name="picture"
-            onChange={(e) => setPicture(e.target.files[0])}
-            className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
-          />
-        </div>
+          <div className="mb-4"></div>
           <div className="flex items-center justify-between">
             <button
+              disabled={password == null}
               className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline"
-              type="submit"
+              type="button"
+              onClick={() => handleUpdate()}
             >
               Save
             </button>
           </div>
-        </form>
+        </div>
       </div>
     </>
   );

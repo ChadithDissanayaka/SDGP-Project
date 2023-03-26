@@ -1,7 +1,14 @@
 import React from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 
 const EmployeeHeader = () => {
+  
+  const navigate = useNavigate();
+  const logout = () =>{
+    localStorage.setItem('role', undefined);
+    localStorage.clear()
+    navigate('/')
+  }
   return (
     <>
       <nav className="relative flex flex-wrap items-center justify-between px-2 py-3 bg-blue-700 mb-3">
@@ -9,7 +16,7 @@ const EmployeeHeader = () => {
           <div className="w-full relative flex justify-between lg:w-auto lg:static lg:block lg:justify-start">
             <Link
               className="text-lg font-bold leading-relaxed inline-block mr-4 py-2 whitespace-nowrap uppercase text-white"
-              to="/dashboard"
+              to="/dashboard-employee"
             >
               Efficiency Tracker
             </Link>
@@ -42,6 +49,13 @@ const EmployeeHeader = () => {
                 >
                   <span className="ml-2 text-base">My Profile</span>
                 </Link>
+              </li>
+              <li className="nav-item">
+                <button onClick={()=>logout()}
+                  className="px-3 py-2 flex items-center text-xs uppercase font-bold leading-snug text-white hover:opacity-75"
+                >
+                  <span className="ml-2 text-base">Log out</span>
+                </button>
               </li>
             </ul>
           </div>
