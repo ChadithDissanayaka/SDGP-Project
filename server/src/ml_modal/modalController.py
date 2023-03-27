@@ -1,31 +1,36 @@
-from flask import Flask, jsonify, request
+from flask import Blueprint, jsonify, request
 import cv2
 from tensorflow import keras
 import numpy as np
-
-app = Flask(__name__)
+import base64
 
 # Load pre-trained model
-model = keras.models.load_model('model.h5')
+model = keras.models.load_model('src\ml_modal\model.h5')
 
 # Load Haar Cascade classifier for face detection
-face_cascade = cv2.CascadeClassifier('haarcascade_frontalface_default.xml')
+face_cascade = cv2.CascadeClassifier('src\ml_modal\haarcascade_frontalface_default.xml')
 
-@app.route('/emotion-recognition', methods=['POST'])
+mlCtrl = Blueprint('ml', __name__)
+
+@mlCtrl.route('/emotion-recognition', methods=['POST'])
+
 def recognize_emotion():
-    # Read video stream from client
-    img_bytes = request.files['video'].read()
-    nparr = np.fromstring(img_bytes, np.uint8)
-    frame = cv2.imdecode(nparr, cv2.IMREAD_COLOR)
+    # Read base64-encoded image from client
+    image_b64 = request.json.get('image')
+    img_bytes = base64.b64decode(image_b64)
+    nparr = np.frombuffer(img_bytes, np.uint8)
+    img = cv2.imdecode(nparr, cv2.IMREAD_COLOR)
 
     # Convert to grayscale
-    gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
+    gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
 
-    # Detect faces in the grayscale frame
+    # Detect faces in the grayscale image
     faces = face_cascade.detectMultiScale(gray, 1.3, 5)
 
-    # Iterate through each face and predict emotion
+    # Initialize list to store results
     results = []
+
+    # Iterate through each face and predict emotion
     for (x, y, w, h) in faces:
         # Crop face region
         face = gray[y:y+h, x:x+w]
@@ -47,10 +52,7 @@ def recognize_emotion():
         emotion_label = emotions[np.argmax(emotion)]
 
         # Add emotion result to results list
-        results.append({'x': x, 'y': y, 'w': w, 'h': h, 'emotion': emotion_label})
+        results.append({'x': int(x), 'y': int(y), 'w': int(w), 'h': int(h), 'emotion': emotion_label})
 
     # Return results as JSON
     return jsonify(results)
-
-if __name__ == '__main__':
-    app.run()

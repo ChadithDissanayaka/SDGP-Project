@@ -3,10 +3,10 @@ import numpy as np
 from keras.models import load_model
 
 # Load the pre-trained emotion detection model
-emotion_model = load_model('C:/Users/E.J.C.Dissanayaka/Desktop/Realtime Face Emotion Recognition/model.h5')
+emotion_model = load_model('src\ml_modal\model.h5')
 
 # Load the Haar Cascades classifier for face detection
-face_cascade = cv2.CascadeClassifier('C:/Users/E.J.C.Dissanayaka/Desktop/Realtime Face Emotion Recognition/haarcascade_frontalface_default.xml')
+face_cascade = cv2.CascadeClassifier('src\ml_modal\haarcascade_frontalface_default.xml')
 
 # Define a function to detect and classify emotions in a face
 def detect_emotion(img):
