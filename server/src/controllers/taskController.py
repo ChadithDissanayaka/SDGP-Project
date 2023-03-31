@@ -31,3 +31,13 @@ def create_task():
 
     return json.dumps({'taskId': result.inserted_id}, default=str)
 
+
+@taskCtrl.route('/start', methods=['POST'])
+def start_task():
+    data = request.json
+
+    result = db.tasks.update_one({'_id': ObjectId(data['id'])}, {
+        '$set': {'startTime': data['startTime'], 'lastStartTime': data['startTime'], 'isTaskStart': True}})
+
+    return json.dumps({'acknowledged': result.acknowledged}, default=str)
+
