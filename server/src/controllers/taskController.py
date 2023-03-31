@@ -41,3 +41,12 @@ def start_task():
 
     return json.dumps({'acknowledged': result.acknowledged}, default=str)
 
+
+@taskCtrl.route('/start_pause', methods=['POST'])
+def start_pause_task():
+    data = request.json
+
+    result = db.tasks.update_one({'_id': ObjectId(data['id'])}, {
+        '$set': {'lastStartTime': data['startTime'], 'isPause': False}})
+
+    return json.dumps({'acknowledged': result.acknowledged}, default=str)
