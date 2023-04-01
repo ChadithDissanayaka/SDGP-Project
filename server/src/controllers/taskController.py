@@ -50,3 +50,21 @@ def start_pause_task():
         '$set': {'lastStartTime': data['startTime'], 'isPause': False}})
 
     return json.dumps({'acknowledged': result.acknowledged}, default=str)
+
+
+@taskCtrl.route('/pause', methods=['POST'])
+def pause_task():
+    data = request.json
+
+    doc = db.tasks.find_one({'_id': ObjectId(data["id"])})
+
+    startTime = datetime.strptime(doc['lastStartTime'], "%Y-%m-%d %H:%M:%S")
+    pauseTime = datetime.strptime(data['pauseTime'], "%Y-%m-%d %H:%M:%S")
+
+    time_diff = ((pauseTime - startTime).total_seconds()) + \
+        doc['spendTime']
+
+    result = db.tasks.update_one({'_id': ObjectId(data['id'])}, {
+        '$set': {'spendTime': time_diff, 'isPause': True}})
+
+    return json.dumps({'acknowledged': result.acknowledged}, default=str)
