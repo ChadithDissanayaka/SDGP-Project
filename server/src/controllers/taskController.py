@@ -86,3 +86,10 @@ def end_task():
         '$set': {'spendTime': time_diff, 'endTime': endTime, 'isPause': False, 'isTaskStart': False, 'isTaskComplete': True}})
 
     return json.dumps({'acknowledged': result.acknowledged}, default=str)
+
+
+@taskCtrl.route('/', methods=['GET'])
+def find_all():
+    cursor = db.tasks.find()
+    result = [document for document in cursor]
+    return json.dumps(result, default=str)
