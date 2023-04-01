@@ -107,3 +107,13 @@ def find_by_user():
     for document in result:
         document['path_to_file'] = env_var
     return json.dumps(result, default=str)
+
+
+@taskCtrl.route('/find_by_status', methods=['GET'])
+def find_by_status():
+    data = request.args.get('user')
+
+    cursor = db.tasks.find({'userId': data, 'isTaskComplete': True, 'submitted':False})
+    result = [document for document in cursor]
+
+    return json.dumps(result, default=str)
