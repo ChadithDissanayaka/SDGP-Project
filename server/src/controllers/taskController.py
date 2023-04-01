@@ -138,3 +138,15 @@ def update_feedback():
                                  '$set': {'feedback': feedback}})
 
     return json.dumps({'acknowledged': result.acknowledged}, default=str)
+
+
+@taskCtrl.route('/additional_info', methods=['PUT'])
+def additional_info():
+    data = request.get_json()
+    task_id = data['id']
+    info = data['info']
+
+    result = db.tasks.update_one({'_id': ObjectId(task_id)}, {
+                                 '$set': {'additionalInfo': info, 'submitted': True}})
+
+    return json.dumps({'acknowledged': result.acknowledged}, default=str)
