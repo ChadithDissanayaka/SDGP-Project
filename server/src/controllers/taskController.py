@@ -126,3 +126,15 @@ def find_by_id():
     result = db.tasks.find_one({'_id':  ObjectId(data)})
 
     return json.dumps(result, default=str)
+
+
+@taskCtrl.route('/update_feedback', methods=['PUT'])
+def update_feedback():
+    data = request.get_json()
+    task_id = data['id']
+    feedback = data['feedback']
+
+    result = db.tasks.update_one({'_id': ObjectId(task_id)}, {
+                                 '$set': {'feedback': feedback}})
+
+    return json.dumps({'acknowledged': result.acknowledged}, default=str)
