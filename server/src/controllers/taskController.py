@@ -117,3 +117,12 @@ def find_by_status():
     result = [document for document in cursor]
 
     return json.dumps(result, default=str)
+
+
+@taskCtrl.route('/find_by_id', methods=['GET'])
+def find_by_id():
+    data = request.args.get('id')
+
+    result = db.tasks.find_one({'_id':  ObjectId(data)})
+
+    return json.dumps(result, default=str)
