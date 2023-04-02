@@ -20,3 +20,13 @@ def create_user():
 
     result = db.users.insert_one(user.__dict__)
     return json.dumps({'userId': result.inserted_id}, default=str)
+
+
+@userCtrl.route('/update', methods=['PUT'])
+def update_user():
+    data = request.json
+    password = hashlib.sha256(data["password"].encode(
+        'utf-8')).hexdigest()
+    result = db.users.update_one({'_id': ObjectId(data["id"])}, {
+        '$set': {'username': data["name"],'email': data["email"],'password': password}})
+    return json.dumps({'acknowledged': result.acknowledged}, default=str)
