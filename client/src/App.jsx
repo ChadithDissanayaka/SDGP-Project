@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React from "react";
 import { SnackbarProvider } from "notistack";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import About from "./components/About";
@@ -13,17 +13,12 @@ import EmployerDashBoard from "./components/Employer/EmployerDashBoard";
 import WelcomeNote from "./components/Employer/WelcomeNote";
 import Login from "./components/Login";
 import SignUp from "./components/SignUp";
+import Contact from "./components/Contact";
 
 function App() {
-  // const [currentUserRole, setCurrentUserRole] = useState(
-  //   localStorage.getItem("role")
-  // );
-  // useEffect(() => {
-  //   setCurrentUserRole(localStorage.getItem("role"));
-  // }, []);
   return (
     <>
-      <SnackbarProvider maxSnack={3} autoHideDuration={2500}>
+      <SnackbarProvider maxSnack={3} autoHideDuration={3000}>
         <BrowserRouter>
           <Routes>
             <Route path="/" element={<Login />} />
@@ -54,7 +49,6 @@ function App() {
                 />
               }
             />
-            {/* {currentUserRole === "Employer" && ( */}
               <>
                 <Route
                   path="/create-task"
@@ -96,9 +90,11 @@ function App() {
                   path="/about"
                   element={<EmployerDashBoard children={<About />} />}
                 />
+                <Route
+                  path="/contact"
+                  element={<EmployerDashBoard children={<Contact />} />}
+                />
               </>
-            {/* )} */}
-            {/* {currentUserRole === "Employee" && ( */}
               <>
                 <Route
                   path="/my-tasks"
@@ -140,8 +136,11 @@ function App() {
                   path="/about"
                   element={<EmployeeDashBoard children={<About />} />}
                 />
+                <Route
+                  path="/contact"
+                  element={<EmployeeDashBoard children={<Contact />} />}
+                />
               </>
-            {/* )} */}
           </Routes>
         </BrowserRouter>
       </SnackbarProvider>

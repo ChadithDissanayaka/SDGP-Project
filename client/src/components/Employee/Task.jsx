@@ -166,12 +166,11 @@ const Task = ({
           <div className="p-4">
             {task.attachment && (
               <Link
-                to={task.path_to_file + task.attachment}
+                to={task.attachment}
                 className="text-blue-500 hover:underline"
                 target={"_blank"}
-                download
               >
-                Download Attachment
+                See Attachments
               </Link>
             )}
             <Timer timerCount={timerCount} />
@@ -179,6 +178,10 @@ const Task = ({
               <span>Task status : </span>
               <span className="font-semibold">{status.toUpperCase()}</span>
             </div>
+            {task.feedback && <div>
+              <span>Task Feedback : </span>
+              <span className="font-semibold">{task.feedback}</span>
+            </div>}
             <div className="flex justify-between mt-4">
               {!task.isTaskStart ? (
                 <button
@@ -208,14 +211,16 @@ const Task = ({
                   setOpenCamera(true);
                   taskPause();
                 }}
-                disabled={task.isTaskComplete || task.isPause}
+                disabled={
+                  task.isTaskComplete || task.isPause || !task.isTaskStart
+                }
                 className="bg-yellow-500 hover:bg-yellow-700 text-white font-bold py-2 px-4 rounded cursor-pointer"
               >
                 Pause
               </button>
               <button
                 onClick={() => stopTask()}
-                disabled={task.isTaskComplete}
+                disabled={task.isTaskComplete || !task.isTaskStart}
                 className="bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded cursor-pointer"
               >
                 Stop
@@ -226,6 +231,7 @@ const Task = ({
             <Webcam
               openCamera={openCamera}
               closeCamera={() => setOpenCamera(false)}
+              continueTask={continueTask}
             />
           ) : (
             false
@@ -238,7 +244,7 @@ const Task = ({
 
 export default Task;
 
-const Webcam = ({ openCamera, closeCamera }) => {
+const Webcam = ({ openCamera, closeCamera, continueTask }) => {
   const videoRef = useRef();
   const canvasRef = useRef();
   const [photo, setPhoto] = useState(null);
@@ -273,6 +279,40 @@ const Webcam = ({ openCamera, closeCamera }) => {
       }
     })
     .catch((err) => console.error(err));
+
+  const { enqueueSnackbar } = useSnackbar();
+  const checkEmotion = async () => {
+    await axios
+      .post(`${baseURL}/ml/emotion-recognition`, {
+        image: photo.split(",")[1],
+      })
+      .then((res) => {
+        console.log(res);
+        if (res.status === 200) {
+          const emotion = res.data[0]?.emotion;
+          if (
+            emotion === "Sad" ||
+            emotion === "Angry" ||
+            emotion === "Disgust"
+          ) {
+            enqueueSnackbar(`Negative emotion has detected. Take a rest.!`, {
+              variant: "error",
+            });
+            closeCamera();
+          } else {
+            closeCamera();
+            continueTask();
+            enqueueSnackbar(`No Negative emotion detected. Keep Working.!`, {
+              variant: "warning",
+            });
+          }
+          console.log(res.data[0].emotion);
+        }
+      })
+      .catch((err) => {
+        console.log(err);
+      });
+  };
 
   return (
     <Dialog
@@ -315,9 +355,7 @@ const Webcam = ({ openCamera, closeCamera }) => {
             <button
               className="bg-blue-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded cursor-pointer"
               onClick={() => {
-                console.log("call modal here");
-                // stopStream();
-                // closeCamera();
+                checkEmotion();
               }}
             >
               Send
