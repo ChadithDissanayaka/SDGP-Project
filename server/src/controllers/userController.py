@@ -30,3 +30,10 @@ def update_user():
     result = db.users.update_one({'_id': ObjectId(data["id"])}, {
         '$set': {'username': data["name"],'email': data["email"],'password': password}})
     return json.dumps({'acknowledged': result.acknowledged}, default=str)
+
+
+@userCtrl.route('/', methods=['GET'])
+def find_all():
+    cursor = db.users.find({'role':'Employee'})
+    result = [document for document in cursor]
+    return json.dumps(result, default=str)
