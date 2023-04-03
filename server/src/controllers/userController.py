@@ -37,3 +37,10 @@ def find_all():
     cursor = db.users.find({'role':'Employee'})
     result = [document for document in cursor]
     return json.dumps(result, default=str)
+
+
+@userCtrl.route('/find', methods=['GET'])
+def find_one():
+    data = request.args.get('user')
+    result = db.users.find_one({'_id': ObjectId(data)})
+    return json.dumps(result, default=str)
