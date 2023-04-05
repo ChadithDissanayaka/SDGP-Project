@@ -20,7 +20,7 @@ const Contact = () => {
               href="mailto:example@example.com"
               className="text-blue-600 hover:underline"
             >
-              example@example.com
+             EfficiencyTracker@gmail.com
             </a>
           </li>
           <li className="flex items-center mb-2">
@@ -31,7 +31,7 @@ const Contact = () => {
               rel="noopener noreferrer"
               className="text-blue-600 hover:underline"
             >
-              @example
+            EfficiencyTracker
             </a>
           </li>
           <li className="flex items-center mb-2">
@@ -42,7 +42,7 @@ const Contact = () => {
               rel="noopener noreferrer"
               className="text-pink-600 hover:underline"
             >
-              @example
+              EfficiencyTracker
             </a>
           </li>
           <li className="flex items-center mb-2">
@@ -53,7 +53,7 @@ const Contact = () => {
               rel="noopener noreferrer"
               className="text-black hover:underline"
             >
-              @example
+               EfficiencyTracker
             </a>
           </li>
           <li className="flex items-center">
@@ -62,7 +62,7 @@ const Contact = () => {
               href="tel:+1234567890"
               className="text-green-600 hover:underline"
             >
-              (123) 456-7890
+              +94 113 154 787
             </a>
           </li>
         </ul>
